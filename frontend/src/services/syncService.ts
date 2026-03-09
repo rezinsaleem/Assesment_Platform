@@ -76,7 +76,7 @@ export async function syncUnsyncedAnswers(attemptId: string): Promise<void> {
 
   for (const [questionId, val] of unsyncedEntries) {
     try {
-      await api.patch("/assessment/answer", {
+      await api.put("/assessment/answer", {
         attemptId,
         questionId,
         selectedOption: val.option,

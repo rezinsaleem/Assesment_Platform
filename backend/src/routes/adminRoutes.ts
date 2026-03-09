@@ -14,7 +14,7 @@ const router = Router();
 router.use(authMiddleware, roleMiddleware("admin"));
 
 router.get("/applications", getAllApplications);
-router.patch("/applications/:id/status", updateApplicationStatus);
+router.put("/applications/:id/status", updateApplicationStatus);
 router.get("/results", getResults);
 router.get("/results/export", exportResults);
 

@@ -74,7 +74,7 @@ export default function AdminDashboard() {
    */
   const handleStatusChange = async (id: string, status: "shortlisted" | "rejected") => {
     try {
-      await api.patch(`/admin/applications/${id}/status`, { status });
+      await api.put(`/admin/applications/${id}/status`, { status });
       toast.success(`Application ${status}`);
 
       // Update local state

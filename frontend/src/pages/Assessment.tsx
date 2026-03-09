@@ -113,7 +113,7 @@ export default function Assessment() {
 
       // 3. Attempt API call
       try {
-        await api.patch("/assessment/answer", {
+        await api.put("/assessment/answer", {
           attemptId: attempt._id,
           questionId,
           selectedOption: option,
