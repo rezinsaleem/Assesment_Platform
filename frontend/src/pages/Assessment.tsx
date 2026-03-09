@@ -239,17 +239,29 @@ export default function Assessment() {
       </nav>
 
       <div className="assessment-container">
-        {shuffledQuestions.map((q, i) => (
-          <QuestionCard
-            key={q._id}
-            index={i}
-            questionId={q._id}
-            text={q.text}
-            options={q.shuffledOptions.map((o: any) => o.text)}
-            selectedOption={answers[q._id] ?? null}
-            onSelect={(qId, sIdx) => handleSelectAnswer(qId, q.shuffledOptions[sIdx].originalIndex)}
-          />
-        ))}
+        {shuffledQuestions.map((q, i) => {
+          const selectedOriginalIndex = answers[q._id];
+          const selectedShuffledIndex =
+            selectedOriginalIndex !== undefined && selectedOriginalIndex !== null
+              ? q.shuffledOptions.findIndex(
+                  (o: any) => o.originalIndex === selectedOriginalIndex
+                )
+              : null;
+
+          return (
+            <QuestionCard
+              key={q._id}
+              index={i}
+              questionId={q._id}
+              text={q.text}
+              options={q.shuffledOptions.map((o: any) => o.text)}
+              selectedOption={selectedShuffledIndex}
+              onSelect={(qId, sIdx) =>
+                handleSelectAnswer(qId, q.shuffledOptions[sIdx].originalIndex)
+              }
+            />
+          );
+        })}
 
         <div className="submit-section">
           <p className="answer-count">
