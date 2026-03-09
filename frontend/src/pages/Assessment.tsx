@@ -15,6 +15,7 @@ interface Question {
   _id: string;
   text: string;
   options: string[];
+  shuffledOptions?: { text: string; originalIndex: number }[];
 }
 
 interface Attempt {
@@ -31,8 +32,20 @@ export default function Assessment() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<{ score: number; total: number } | null>(null);
+
+  // Helper to shuffle options and keep track of original indices
+  const shuffleQuestions = (qs: Question[]) => {
+    return qs.map(q => {
+      const shuffled = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }))
+        .sort(() => Math.random() - 0.5);
+      return { ...q, shuffledOptions: shuffled };
+    });
+  };
+
+  const [shuffledQuestions, setShuffledQuestions] = useState<any[]>([]);
 
   // Start or resume the assessment
   useEffect(() => {
@@ -40,7 +53,9 @@ export default function Assessment() {
       try {
         const { data } = await api.post("/assessment/start");
         setAttempt(data.attempt);
+        const processedQs = shuffleQuestions(data.questions || []);
         setQuestions(data.questions || []);
+        setShuffledQuestions(processedQs);
 
         // Restore answers from attempt or localStorage
         const restored: Record<string, number> = {};
@@ -139,6 +154,7 @@ export default function Assessment() {
     // Sync any remaining unsynced answers first
     await syncUnsyncedAnswers(attempt._id);
 
+    setSubmitting(true);
     try {
       const { data } = await api.post("/assessment/submit", {
         attemptId: attempt._id,
@@ -149,6 +165,8 @@ export default function Assessment() {
       toast.success("Assessment submitted!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Submission failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -221,15 +239,15 @@ export default function Assessment() {
       </nav>
 
       <div className="assessment-container">
-        {questions.map((q, i) => (
+        {shuffledQuestions.map((q, i) => (
           <QuestionCard
             key={q._id}
             index={i}
             questionId={q._id}
             text={q.text}
-            options={q.options}
+            options={q.shuffledOptions.map((o: any) => o.text)}
             selectedOption={answers[q._id] ?? null}
-            onSelect={handleSelectAnswer}
+            onSelect={(qId, sIdx) => handleSelectAnswer(qId, q.shuffledOptions[sIdx].originalIndex)}
           />
         ))}
 
@@ -237,8 +255,12 @@ export default function Assessment() {
           <p className="answer-count">
             {Object.keys(answers).length} of {questions.length} answered
           </p>
-          <button className="btn btn-primary btn-large" onClick={handleSubmit}>
-            Submit Assessment
+          <button 
+            className="btn btn-primary btn-large" 
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit Assessment"}
           </button>
         </div>
       </div>

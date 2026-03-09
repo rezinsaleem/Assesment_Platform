@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const [newQuestion, setNewQuestion] = useState({ text: "", options: ["", "", "", ""], correctAnswer: 0 });
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationItem | null>(null);
 
   // Fetch data when tab changes
@@ -73,6 +74,7 @@ export default function AdminDashboard() {
    * Approve or reject a candidate's application.
    */
   const handleStatusChange = async (id: string, status: "shortlisted" | "rejected") => {
+    setProcessing(true);
     try {
       await api.put(`/admin/applications/${id}/status`, { status });
       toast.success(`Application ${status}`);
@@ -86,6 +88,8 @@ export default function AdminDashboard() {
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Update failed");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -93,6 +97,7 @@ export default function AdminDashboard() {
    * Download results as CSV.
    */
   const handleExportCsv = async () => {
+    setProcessing(true);
     try {
       const response = await api.get("/admin/results/export", {
         responseType: "blob",
@@ -110,6 +115,8 @@ export default function AdminDashboard() {
       toast.success("CSV exported!");
     } catch {
       toast.error("Export failed");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -133,6 +140,7 @@ export default function AdminDashboard() {
       return;
     }
     if (!window.confirm("Are you sure you want to delete this question?")) return;
+    setProcessing(true);
     try {
       console.log("Deleting question with ID:", id);
       await api.delete(`/questions/${id}`);
@@ -143,6 +151,8 @@ export default function AdminDashboard() {
       toast.success("Question deleted!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to delete question");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -152,6 +162,7 @@ export default function AdminDashboard() {
       toast.error("All fields are required");
       return;
     }
+    setProcessing(true);
     try {
       if (editingQuestionId) {
         const { data } = await api.put(`/questions/${editingQuestionId}`, newQuestion);
@@ -166,6 +177,8 @@ export default function AdminDashboard() {
       setEditingQuestionId(null);
     } catch (err: any) {
       toast.error(err.response?.data?.message || `Failed to ${editingQuestionId ? 'update' : 'add'} question`);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -260,14 +273,16 @@ export default function AdminDashboard() {
                             <button
                               className="btn btn-success btn-sm"
                               onClick={() => handleStatusChange(app._id, "shortlisted")}
+                              disabled={processing}
                             >
-                              Shortlist
+                              {processing ? "..." : "Shortlist"}
                             </button>
                             <button
                               className="btn btn-danger btn-sm"
                               onClick={() => handleStatusChange(app._id, "rejected")}
+                              disabled={processing}
                             >
-                              Reject
+                              {processing ? "..." : "Reject"}
                             </button>
                           </div>
                         )}
@@ -283,8 +298,8 @@ export default function AdminDashboard() {
         <div className="card">
           <div className="results-header">
             <h2>Assessment Results</h2>
-            <button className="btn btn-primary" onClick={handleExportCsv}>
-              Export CSV
+            <button className="btn btn-primary" onClick={handleExportCsv} disabled={processing}>
+              {processing ? "Exporting..." : "Export CSV"}
             </button>
           </div>
           {results.length === 0 ? (
@@ -336,9 +351,11 @@ export default function AdminDashboard() {
               </div>
             ))}
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button type="submit" className="btn btn-primary">{editingQuestionId ? "Save" : "Add Question"}</button>
+              <button type="submit" className="btn btn-primary" disabled={processing}>
+                {processing ? "Saving..." : (editingQuestionId ? "Save" : "Add Question")}
+              </button>
               {editingQuestionId && (
-                <button type="button" className="btn btn-outline" onClick={handleCancelEdit}>Cancel</button>
+                <button type="button" className="btn btn-outline" onClick={handleCancelEdit} disabled={processing}>Cancel</button>
               )}
             </div>
           </form>
@@ -375,16 +392,17 @@ export default function AdminDashboard() {
                       background: 'none',
                       border: 'none',
                       color: 'var(--danger)',
-                      cursor: 'pointer',
+                      cursor: processing ? 'not-allowed' : 'pointer',
                       padding: '4px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      opacity: 0.8,
+                      opacity: processing ? 0.3 : 0.8,
                       transition: 'opacity 0.2s ease'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                    disabled={processing}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="3 6 5 6 21 6"></polyline>
@@ -547,15 +565,17 @@ export default function AdminDashboard() {
                       className="btn btn-success"
                       style={{ flex: 1 }}
                       onClick={() => handleStatusChange(selectedApp._id, "shortlisted")}
+                      disabled={processing}
                     >
-                      Shortlist
+                      {processing ? "..." : "Shortlist"}
                     </button>
                     <button
                       className="btn btn-danger"
                       style={{ flex: 1 }}
                       onClick={() => handleStatusChange(selectedApp._id, "rejected")}
+                      disabled={processing}
                     >
-                      Reject
+                      {processing ? "..." : "Reject"}
                     </button>
                   </>
                 )}

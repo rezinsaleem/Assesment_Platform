@@ -174,16 +174,16 @@ export const submitAssessment = async (
     }
 
     // Calculate score and mark submitted
+    const questionsCount = await Question.countDocuments();
     attempt.score = await calculateScore(attempt.answers);
+    attempt.totalQuestions = questionsCount;
     attempt.submitted = true;
     await attempt.save();
-
-    const totalQuestions = await Question.countDocuments();
 
     res.json({
       message: "Assessment submitted",
       score: attempt.score,
-      totalQuestions,
+      totalQuestions: questionsCount,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

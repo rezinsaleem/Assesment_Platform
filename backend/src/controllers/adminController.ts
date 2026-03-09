@@ -63,19 +63,22 @@ export const getResults = async (_req: Request, res: Response): Promise<void> =>
       "userId",
       "name email"
     );
-    const totalQuestions = await Question.countDocuments();
+    const currentTotalCount = await Question.countDocuments();
 
     const results = attempts.map((a) => {
       const user = a.userId as unknown as { name: string; email: string };
+      // Use the snapshot if available, otherwise fallback to current count
+      const tq = (a as any).totalQuestions || currentTotalCount;
+      
       return {
         attemptId: a._id,
         candidateName: user.name,
         email: user.email,
         score: a.score,
-        totalQuestions,
+        totalQuestions: tq,
         percentage:
-          totalQuestions > 0
-            ? (((a.score ?? 0) / totalQuestions) * 100).toFixed(2)
+          tq > 0
+            ? (((a.score ?? 0) / tq) * 100).toFixed(2)
             : "0.00",
       };
     });

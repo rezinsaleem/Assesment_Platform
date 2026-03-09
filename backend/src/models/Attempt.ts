@@ -12,6 +12,7 @@ export interface IAttempt extends Document {
   expiresAt: Date;
   submitted: boolean;
   score: number | null;
+  totalQuestions: number;
 }
 
 const attemptSchema = new Schema<IAttempt>(
@@ -27,6 +28,7 @@ const attemptSchema = new Schema<IAttempt>(
     expiresAt: { type: Date, required: true },
     submitted: { type: Boolean, default: false },
     score: { type: Number, default: null },
+    totalQuestions: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

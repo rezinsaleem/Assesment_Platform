@@ -23,7 +23,7 @@ interface CsvRow {
  */
 export const generateResultsCsv = async (): Promise<string> => {
   const attempts = await Attempt.find({ submitted: true }).populate("userId", "name email");
-  const totalQuestions = await Question.countDocuments();
+  const currentTotalQuestions = await Question.countDocuments();
 
   const csvStringifier = createObjectCsvStringifier({
     header: [
@@ -49,7 +49,8 @@ export const generateResultsCsv = async (): Promise<string> => {
     const application = await Application.findOne({ userId: user._id });
     
     const score = attempt.score ?? 0;
-    const pct = totalQuestions > 0 ? ((score / totalQuestions) * 100).toFixed(2) : "0.00";
+    const tq = attempt.totalQuestions || currentTotalQuestions;
+    const pct = tq > 0 ? ((score / tq) * 100).toFixed(2) : "0.00";
 
     // Timing calculations
     const start = new Date(attempt.startedAt);
@@ -65,7 +66,7 @@ export const generateResultsCsv = async (): Promise<string> => {
       category: application?.category || "N/A",
       highestQualification: application?.highestQualification || "N/A",
       score,
-      totalQuestions,
+      totalQuestions: tq,
       percentage: pct,
       startedAt: start.toLocaleString(),
       submittedAt: end.toLocaleString(),
