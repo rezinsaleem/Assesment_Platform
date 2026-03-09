@@ -2,6 +2,7 @@ import { Response } from "express";
 import multer from "multer";
 import path from "path";
 import Application from "../models/Application";
+import Attempt from "../models/Attempt";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 // ---------- Multer config for resume uploads ----------
@@ -75,7 +76,11 @@ export const getMyApplication = async (
 ): Promise<void> => {
   try {
     const application = await Application.findOne({ userId: req.userId });
-    res.json({ application });
+    const attempt = await Attempt.findOne({ userId: req.userId, submitted: true });
+    res.json({ 
+      application, 
+      assessmentSubmitted: !!attempt 
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

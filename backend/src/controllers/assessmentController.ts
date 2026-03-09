@@ -42,12 +42,14 @@ export const startAssessment = async (
       submitted: true,
     });
     if (submittedAttempt) {
-      res.status(400).json({ message: "You have already completed the assessment" });
+      console.log(`Assessment already submitted for user: ${req.userId}`);
+      res.status(400).json({ message: "You have already submitted your assessment. Please wait for the admin to review." });
       return;
     }
 
     // Create new attempt with timer
     const durationMinutes = parseInt(process.env.ASSESSMENT_DURATION_MINUTES || "30", 10);
+    console.log(`Starting assessment for user ${req.userId} with duration ${durationMinutes}`);
     const startedAt = new Date();
     const expiresAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
 

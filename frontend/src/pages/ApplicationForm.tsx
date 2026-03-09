@@ -9,6 +9,7 @@ export default function ApplicationForm() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [application, setApplication] = useState<any>(null);
+  const [assessmentSubmitted, setAssessmentSubmitted] = useState(false);
   const [checking, setChecking] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -36,6 +37,7 @@ export default function ApplicationForm() {
         const { data } = await api.get("/applications/me");
         if (data.application) {
           setApplication(data.application);
+          setAssessmentSubmitted(data.assessmentSubmitted);
         }
       } catch {
         // No application yet
@@ -133,13 +135,20 @@ export default function ApplicationForm() {
               <strong>Resume:</strong> {application.resumePath}
             </p>
 
-            {application.status === "shortlisted" && (
+            {application.status === "shortlisted" && !assessmentSubmitted && (
               <button
                 className="btn btn-primary"
                 onClick={() => navigate("/assessment")}
               >
                 Start Assessment →
               </button>
+            )}
+
+            {assessmentSubmitted && (
+              <div className="info-text success-text" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(52, 211, 153, 0.1)', borderRadius: '8px', border: '1px solid var(--success)' }}>
+                <p style={{ color: 'var(--success)', fontWeight: 'bold' }}>✓ Assessment Completed</p>
+                <p>You have successfully submitted your assessment. Our team will review your results and get back to you.</p>
+              </div>
             )}
 
             {application.status === "pending" && (
