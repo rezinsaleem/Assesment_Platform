@@ -533,7 +533,7 @@ export default function AdminDashboard() {
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
                 <a
-                  href={`http://localhost:5000/uploads/${selectedApp.resumePath}`}
+                  href={`https://assesment-platform-0t58.onrender.com/uploads/${selectedApp.resumePath}`}
                   target="_blank"
                   rel="noreferrer"
                   className="btn btn-outline"
