@@ -241,7 +241,7 @@ export default function AdminDashboard() {
                       </td>
                       {/* <td>
                         <a
-                          href={`http://localhost:5000/uploads/${app.resumePath}`}
+                          href={`https://assesment-platform-0t58.onrender.com/uploads/${app.resumePath}`}
                           target="_blank"
                           rel="noreferrer"
                           className="link"

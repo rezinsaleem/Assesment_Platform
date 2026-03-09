@@ -21,6 +21,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "https://assesment-platform.vercel.app",
+    "https://assesment-platform-0t58.onrender.com",
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
