@@ -5,7 +5,7 @@ import axios from "axios";
  * Automatically attaches the JWT token from localStorage to every request.
  */
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: "https://assesment-platform-0t58.onrender.com/api",
 });
 
 // Attach token to every outgoing request
