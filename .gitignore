@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build directories
+dist/
+build/
+
+# Environment files
+# .env is EXCLUDED from gitignore as per user request
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backend specific
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Frontend specific
+frontend/src/vite-env.d.ts
