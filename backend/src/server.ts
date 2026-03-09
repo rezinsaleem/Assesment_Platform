@@ -20,9 +20,12 @@ const PORT = process.env.PORT || 5000;
 app.use(
   cors({
     origin: "https://assesment-platform.vercel.app",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+
+app.options("*", cors());
 app.use(express.json());
 
 // Serve uploaded files statically
